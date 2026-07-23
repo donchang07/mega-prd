@@ -1,0 +1,33 @@
+{
+  "scannedAt": "2026-07-23",
+  "source": "Google Drive · 글쓰기 › CEO를 위한 AI Navtive Enterprise",
+  "title": "CEO와 경영진을 위한 AI Native — 기업의 AX를 위한 바이브 코딩",
+  "subtitle": "현업 바이브 코딩과 생산성의 폭발",
+  "author": "장동인 (KAIST 김재철AI대학원 책임교수, AIBB LAB 대표)",
+  "structure": "프롤로그 + 제1~9부 + 에필로그 + 부록 A·B·D",
+  "pagesApprox": 257,
+  "latestVersion": "v14 사실검증 수정본",
+  "latestModified": "2026-07-05",
+  "versions": [
+    { "name": "v14 사실검증 수정본", "modified": "2026-07-05", "type": "gdoc", "url": "https://docs.google.com/document/d/1lfs9o0y5vexrd7dPq-nlAY8PxZBrjYusopkIi2L8mAY/edit" },
+    { "name": "v13", "modified": "2026-06-14", "type": "gdoc", "url": "https://docs.google.com/document/d/13uwKgfvuVT_pMZK7fraxsWmAbn5J16AmN2xczFwwkRY/edit" },
+    { "name": "v10", "modified": "2026-06-05", "type": "docx", "url": "https://drive.google.com/file/d/1xL4OlCjVwN2d4rPkSvwFeOtsGCebIUko/view" },
+    { "name": "v9", "modified": "2026-05-29", "type": "docx", "url": "https://drive.google.com/file/d/12oyJU4V0LRtFzkJfGF3g_19dI_PK1usG/view" },
+    { "name": "v7", "modified": "2026-05-25", "type": "docx", "url": "https://drive.google.com/file/d/1X8VlQcoxMr5QO040l_4h8Llg1T0uyB_g/view" },
+    { "name": "v2", "modified": "2026-05-21", "type": "docx", "url": "https://drive.google.com/file/d/1B6xIVPFlh0j2I5ZGPerC2TJMu3h5spj8/view" },
+    { "name": "v1.0", "modified": "2026-05-17", "type": "docx", "url": "https://drive.google.com/file/d/1E0ISJlwEOAkZ8je5Qc618t84WIr-npo1/view" }
+  ],
+  "parts": [
+    "프롤로그 — AX 시대, CEO의 결단",
+    "제1부 — 왜 바이브 코딩이 AX의 핵심 키인가",
+    "제2부 — 바이브 코딩이 만드는 새로운 가치",
+    "제3부 — Harness Engineering: 엔지니어링 문화의 코드화",
+    "제4부 — AI Native 기업으로의 도약",
+    "제5부 — 바이브 코딩의 두 번째 진화: 도메인 지식 오케스트레이션",
+    "제6부 — 부서별 SOP의 근본적 재설계",
+    "제7부 — Chaos를 막는 거버넌스: Enterprise Vibe Coding Platform",
+    "제8부 — 검증의 과학: 정확성을 어떻게 유지할 것인가",
+    "제9부 — AI Native 기업의 성공 사례: 매출, 이익, 고객만족의 폭발",
+    "에필로그 — 한국 기업의 글로벌 표준 주도 기회"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$comment": "강의 파이프라인 단일 원천. 상태: inquiry → confirmed → prepared → done → followup → invoiced → paid. 실데이터는 아직 입력 전이며, 아래 example은 스키마 예시입니다. 개인정보·금액 처리 방침은 mega-prd-v0.1.md 4장·9장 참조.",
+  "updatedAt": "2026-07-23",
+  "lectures": [],
+  "example": {
+    "id": "2026-07-29-samsung",
+    "title": "삼성전자 임원 AI 특강",
+    "date": "2026-07-29",
+    "status": "prepared",
+    "client": { "org": "삼성전자", "contact": "인재개발원 (이니셜만 기록)" },
+    "fee": { "amount": null, "invoiceSentAt": null, "paidAt": null },
+    "followups": [
+      { "person": "K상무", "metAt": "2026-07-29", "firstMailAt": null, "status": "pending" }
+    ]
+  }
+}

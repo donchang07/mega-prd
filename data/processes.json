@@ -1,0 +1,15 @@
+{
+  "updatedAt": "2026-07-23",
+  "processes": [
+    { "id": "ai4ceo", "name": "ai4ceo (AI4CEO Portal)", "status": "active", "source": "github:donchang07/ai4ceo-portal", "note": "PRD v3.2 확정 (2026-07-21)" },
+    { "id": "schedule", "name": "스케줄 관리", "status": "planned", "source": "google-calendar", "note": "커넥터 연결 대기" },
+    { "id": "content", "name": "AI 뉴스·공부·정리·SNS 포스팅", "status": "planned", "source": "manual", "note": "수집→정리→초안→발행 파이프라인" },
+    { "id": "writing", "name": "책쓰기", "status": "active", "source": "google-drive", "note": "실데이터 연결 완료 (data/book.json)" },
+    { "id": "lecture-prep", "name": "강의 준비", "status": "planned", "source": "data/lectures.json" },
+    { "id": "followup", "name": "강의 후 팔로업", "status": "planned", "source": "gmail + data/followups.json", "note": "48시간 규칙" },
+    { "id": "invoice", "name": "강사료 정산 서류 전달", "status": "planned", "source": "gmail + data/lectures.json" },
+    { "id": "payment", "name": "강사료 입금 확인", "status": "planned", "source": "gmail + data/lectures.json", "note": "발송 후 14일 초과 시 경고" },
+    { "id": "caio-lms", "name": "CAIO-LMS (기수 운영)", "status": "tbd", "source": "tbd", "note": "데이터 접근 방식 미정" },
+    { "id": "caio-alumni", "name": "CAIO-Alumni (졸업생 운영)", "status": "tbd", "source": "tbd" }
+  ]
+}
