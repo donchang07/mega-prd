@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>장동인 교수 · AI Native Cockpit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%230071e3' font-family='system-ui'%3EA%3C/text%3E%3C/svg%3E">
+
 <style>
 :root {
   color-scheme: light;
@@ -51,6 +53,32 @@ nav.tabs button {
 }
 nav.tabs button:hover { color: #ffffff; }
 nav.tabs button.active { color: #ffffff; font-weight: 600; border-bottom-color: var(--series-1); }
+.subnav { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.subnav button { appearance: none; cursor: pointer; font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 980px; border: 1px solid var(--grid); background: var(--surface-1); color: var(--ink-2); }
+.subnav button.active { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+.ppl-controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.ppl-controls input, .ppl-controls select { font: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--grid); border-radius: 8px; background: var(--page); color: var(--ink-1); }
+.ppl-controls input { flex: 1; min-width: 180px; }
+.ppl-controls button, .intro-btns button, .memo-add { appearance: none; cursor: pointer; font: inherit; font-size: 13px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--grid); background: var(--surface-1); color: var(--ink-1); }
+.ppl-row { display: flex; align-items: center; gap: 10px; padding: 12px 4px; border-bottom: 1px solid var(--grid); cursor: pointer; }
+.ppl-row:hover { background: var(--surface-1); }
+.ppl-row .nm { font-weight: 600; }
+.ppl-row .meta { color: var(--ink-muted); font-size: 13px; }
+.ppl-row .flag { margin-left: auto; }
+.remind { background: var(--wash); border-radius: 10px; padding: 14px 16px; margin: 10px 0; }
+.remind div { margin: 3px 0; font-size: 14px; }
+.remind .k { color: var(--ink-muted); display: inline-block; min-width: 92px; }
+.tl { list-style: none; margin: 8px 0; }
+.tl li { padding: 7px 0; border-bottom: 1px dashed var(--grid); font-size: 14px; }
+.tl li .dt { color: var(--series-1); font-weight: 600; margin-right: 8px; }
+.memo-form { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.memo-form input { font: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--grid); border-radius: 8px; }
+.intro-card { padding: 14px 4px; border-bottom: 1px solid var(--grid); }
+.intro-card.done { opacity: .45; }
+.intro-btns { display: flex; gap: 6px; margin-top: 8px; }
+.imp-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--grid); }
+.imp-row .meta { color: var(--ink-muted); font-size: 13px; margin-left: auto; }
+.news-thought { display: block; width: 100%; margin-top: 8px; font: inherit; font-size: 12.5px; padding: 6px 9px; border: 1px solid var(--grid); border-radius: 7px; background: var(--page); color: var(--ink-1); }
 main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 0; }
 section.tab-panel { display: none; }
 section.tab-panel.active { display: block; }
@@ -248,6 +276,8 @@ body.locked > *:not(#auth-gate) { display: none !important; }
     <button data-tab="lecture">강의 파이프라인</button>
     <button data-tab="lms">CAIO-LMS</button>
     <button data-tab="alumni">CAIO-Alumni</button>
+    <button data-tab="people">인맥</button>
+    <button data-tab="workout">운동</button>
     <button data-tab="system">시스템</button>
   </nav>
 </header>
@@ -281,6 +311,22 @@ body.locked > *:not(#auth-gate) { display: none !important; }
         <li><span class="badge b-warn">⚠ 오늘 마감</span><span>Alumni 7월호 뉴스레터 초안 마감일(7/24)</span></li>
         <li><span class="badge b-good">✔ 입금</span><span>LG엔솔 강사료 ₩3,648,000 입금 완료(7/10) · 한빛 인세 7/20 지급 예정 · 리코멘드 상반기 인세 정산 도착</span></li>
       </ul>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card" style="cursor:pointer;" data-goto="people">
+      <h2>재접촉 필요 인원 <span class="hint">인맥 · FollowUpStatus / last_contact 기준</span></h2>
+      <div style="display:flex;align-items:baseline;gap:12px;">
+        <span style="font-size:34px;font-weight:700;letter-spacing:-0.02em;" id="home-recontact">—</span>
+        <span class="hint" id="home-recontact-note">인맥 탭 샘플 기준 · 클릭하면 인맥으로 이동</span>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer;" data-goto="workout">
+      <h2>이번 주 운동 <span class="hint">운동 · Strava workouts 기준</span></h2>
+      <div style="display:flex;align-items:baseline;gap:12px;">
+        <span style="font-size:34px;font-weight:700;letter-spacing:-0.02em;" id="home-workout">—</span>
+        <span class="hint" id="home-workout-note">회 · 클릭하면 운동으로 이동</span>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -384,12 +430,12 @@ body.locked > *:not(#auth-gate) { display: none !important; }
   <div class="card">
     <h2>콘텐츠 파이프라인 <span class="hint">수집 → 정리 → 초안 → 발행</span></h2>
     <div class="pipeline" style="grid-template-columns: repeat(4, 1fr);">
-      <div class="pipe-col"><h3>수집 <span class="cnt">5</span></h3>
-        <div class="pipe-card"><div class="t">OpenAI 테스트 에이전트, HF 인프라 자율 해킹</div><div class="d">7/23 · 자율 시스템 보안 리스크 사례</div></div>
-        <div class="pipe-card"><div class="t">AWS Bedrock AgentCore GA</div><div class="d">7/21 · 오케스트레이션·메모리 표준화</div></div>
-        <div class="pipe-card"><div class="t">Ushur 에이전틱 플랫폼 UAP 출시</div><div class="d">7/23 · 보험·은행·헬스케어</div></div>
-        <div class="pipe-card"><div class="t">에이전트 소비 결제 $3.35조 전망 (2030)</div><div class="d">7/21 · x402 결제 표준</div></div>
-        <div class="pipe-card"><div class="t">SutiSoft — 챗봇→워크플로 실행 에이전트</div><div class="d">7/22 · 엔터프라이즈 전환</div></div>
+      <div class="pipe-col" id="news-collect"><h3>수집 <span class="cnt">5</span></h3>
+        <div class="pipe-card" data-news="n1"><div class="t">OpenAI 테스트 에이전트, HF 인프라 자율 해킹</div><div class="d">7/23 · 자율 시스템 보안 리스크 사례</div></div>
+        <div class="pipe-card" data-news="n2"><div class="t">AWS Bedrock AgentCore GA</div><div class="d">7/21 · 오케스트레이션·메모리 표준화</div></div>
+        <div class="pipe-card" data-news="n3"><div class="t">Ushur 에이전틱 플랫폼 UAP 출시</div><div class="d">7/23 · 보험·은행·헬스케어</div></div>
+        <div class="pipe-card" data-news="n4"><div class="t">에이전트 소비 결제 $3.35조 전망 (2030)</div><div class="d">7/21 · x402 결제 표준</div></div>
+        <div class="pipe-card" data-news="n5"><div class="t">SutiSoft — 챗봇→워크플로 실행 에이전트</div><div class="d">7/22 · 엔터프라이즈 전환</div></div>
       </div>
       <div class="pipe-col"><h3>정리·공부 <span class="cnt">2</span></h3>
         <div class="pipe-card"><div class="t">에이전트 보안 사건 → 책 8부 사례</div><div class="d">'검증의 과학' 실사례 후보</div></div>
@@ -576,6 +622,12 @@ body.locked > *:not(#auth-gate) { display: none !important; }
       <tr><td>GitHub · mega-prd / ai4ceo-portal</td><td>Mega PRD (docs/prd) · data/*.json</td><td><span class="badge b-warn" id="sys-github"><span class="dot"></span>⚠ 확인 중</span></td></tr>
       <tr><td>Google Calendar</td><td>스케줄 · 강의 일정</td><td><span class="badge b-good"><span class="dot"></span>✔ 연결됨</span></td></tr>
       <tr><td>Gmail</td><td>팔로업 메일 · 정산 서류 · 입금 알림</td><td><span class="badge b-good"><span class="dot"></span>✔ 연결됨</span></td></tr>
+      <tr><td>Google Drive</td><td>책 원고 · 원본 파일 저장소</td><td><span class="badge b-good"><span class="dot"></span>✔ 연결됨</span></td></tr>
+      <tr><td>Supabase · ai-native-cockpit</td><td>스케줄·뉴스·책·강의·CAIO·백로그·시스템 (10테이블)</td><td><span class="badge b-good"><span class="dot"></span>✔ 연결됨</span></td></tr>
+      <tr><td>Vercel</td><td>콕핏 배포 (ai-native-cockpit.vercel.app)</td><td><span class="badge b-good"><span class="dot"></span>✔ 배포</span></td></tr>
+      <tr><td>Drive/SMS 폴더</td><td>통화기록 2,000건 · 문자 원본 (매일 새벽 1시 백업)</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 확보 · DB 미반영</span></td></tr>
+      <tr><td>리멤버 명함 CSV</td><td>인맥 원본 (개인명함첩 xlsx)</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 확보 · DB 미반영</span></td></tr>
+      <tr><td>Strava</td><td>운동 · 건강 (workouts)</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 연결 · DB 미반영</span></td></tr>
       <tr><td>Sooji (지식 라이브러리)</td><td>AI 뉴스 · 공부 노트</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 미연결</span></td></tr>
       <tr><td>CAIO-LMS</td><td>수강생 · 과제 · 출석</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 방식 미정</span></td></tr>
     </table>
@@ -589,9 +641,87 @@ body.locked > *:not(#auth-gate) { display: none !important; }
     </div>
   </div>
 </section>
+
+<!-- ================= 인맥 (CRM) ================= -->
+<section class="tab-panel" id="tab-people">
+  <div class="notice">인맥 탭은 PRD v1.2 10장(CRM) 화면정의 <strong>프로토타입</strong>입니다 — 아래 데이터는 화면 검증용 <strong>샘플</strong>이며, 통화기록·리멤버 명함 실데이터 반영은 후속(bkit Phase 0) 작업입니다.</div>
+  <div class="subnav" id="people-subnav">
+    <button class="active" data-view="list">인물 목록 (S-001)</button>
+    <button data-view="intro">연결 추천 (S-005)</button>
+    <button data-view="import">일괄 업로드 결과 (S-006)</button>
+  </div>
+
+  <!-- S-001 목록 / S-002 상세 -->
+  <div class="pv-view" id="pv-list">
+    <div class="card">
+      <h2>인물 목록 <span class="hint">S-001 · 재접촉이 필요한 사람을 찾는다</span></h2>
+      <div class="ppl-controls">
+        <input type="text" id="ppl-search" placeholder="이름 · 회사 · needs/offers 검색">
+        <select id="ppl-filter">
+          <option value="">전체</option>
+          <option value="recontact">재접촉 필요</option>
+          <option value="caio">CAIO 기수</option>
+          <option value="audience">청강자</option>
+        </select>
+      </div>
+      <div id="ppl-list"></div>
+    </div>
+    <div class="card" id="ppl-detail" style="display:none;"></div>
+  </div>
+
+  <!-- S-005 연결 추천 -->
+  <div class="pv-view" id="pv-intro" style="display:none;">
+    <div class="card">
+      <h2>연결 추천 <span class="hint">S-005 · AI가 네트워크 전체를 보고 연결 지점을 찾는다</span></h2>
+      <p class="hint" style="margin-bottom:10px;">두 사람 모두의 동의 없이 자동 발송되지 않습니다 — 항상 [소개했음] 실행을 거칩니다.</p>
+      <div id="intro-list"></div>
+    </div>
+  </div>
+
+  <!-- S-006 일괄 업로드 결과 -->
+  <div class="pv-view" id="pv-import" style="display:none;">
+    <div class="card">
+      <h2>일괄 업로드 결과 <span class="hint">S-006 · 통화기록 2,000건 + 리멤버 명함</span></h2>
+      <div class="src-note"><span class="badge b-warn"><span class="dot"></span>원칙</span><span>AI는 무엇을 남길지 판단하지 않습니다 — (Unknown)·스팸 추정도 전량 그대로 업로드하고, 정리는 교수님이 직접(검색·선택 삭제)합니다.</span></div>
+      <div class="ppl-controls">
+        <input type="text" id="imp-search" placeholder="이름 · 번호 검색">
+        <button id="imp-delete">선택 삭제</button>
+      </div>
+      <div id="imp-list"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 운동 ================= -->
+<section class="tab-panel" id="tab-workout">
+  <div class="notice">운동 탭은 PRD v1.2 11.5 화면정의 <strong>프로토타입</strong>입니다 — 아래는 <strong>샘플</strong>이며, Strava 실데이터 동기화는 후속 작업입니다.</div>
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-tile"><div class="label">이번 주</div><div class="value" id="wk-week">—</div><div class="note">회</div></div>
+    <div class="stat-tile"><div class="label">이번 달</div><div class="value" id="wk-month">—</div><div class="note">회</div></div>
+    <div class="stat-tile"><div class="label">연속</div><div class="value" id="wk-streak">—</div><div class="note">일</div></div>
+    <div class="stat-tile"><div class="label">이번 주 거리</div><div class="value" id="wk-dist">—</div><div class="note">km</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>최근 활동 <span class="hint">S-EX-001 · Strava 최신순</span></h2>
+      <ul class="plain" id="wk-recent"></ul>
+    </div>
+    <div class="card">
+      <h2>전체 이력 <span class="hint">S-EX-002</span></h2>
+      <div class="ppl-controls">
+        <select id="wk-period">
+          <option value="all">전체 기간</option>
+          <option value="month">이번 달</option>
+          <option value="7d">최근 7일</option>
+        </select>
+      </div>
+      <table class="simple" id="wk-table"></table>
+    </div>
+  </div>
+</section>
 </main>
 <div class="footer-note" id="footer-note">
-  v0.9 (2026-07-24 17시 갱신) · 이 상황판은 라이브 아티팩트입니다. 데이터 갱신·실행(메일 발송, 일정 등록 등)은 Claude에게 지시하면 처리 후 이 화면을 업데이트합니다.
+  v1.2 (2026-07-25 갱신 · 인맥·운동 탭 추가) · 이 상황판은 라이브 아티팩트입니다. 데이터 갱신·실행(메일 발송, 일정 등록 등)은 Claude에게 지시하면 처리 후 이 화면을 업데이트합니다.
 </div>
 <script>
 // ---------- 탭 ----------
@@ -619,7 +749,7 @@ const LEC_DETAILS = {
   'lec-12': '<strong>광주경찰청</strong> · 6/23 10:00 완료',
   'lec-13': '<strong>롯데그룹</strong> · 6/18 11:00 부여 완료 · 7/8 오현식-롯데 추천사 작업과 연결',
   'lec-14': '<strong>LG엔솔</strong> · 6/17 완료 · ✔ 강사료 ₩3,648,000 입금 완료 (7/10 · 농협)',
-  'lec-15': '<strong>YBM the Biz</strong> · 6/12 10:00–17:00 · 강남교육연수센터 완료'
+  'lec-15': '<strong>YBM the Biz</strong> · 6/12 10:00–17:00 · 강남교육연수센터 완료',
   'lec-16': '<strong>서울대 SPARC 49기</strong> · 12/1 (화) 1교시 · 7/24 메일로 일정 확정, 강연 제목 「돈되는 AI — CEO가 반드시 알아야 하는 것들」 전달 완료 · 담당: 자연대 기획대외협력실',
 };
 const lecPanel = document.getElementById('lecture-detail');
@@ -731,6 +861,239 @@ function useMock(msg) {
   } catch (e) {
     useMock('GitHub 실시간 연결 실패 (' + (e && e.message ? e.message : '차단됨') + ') — 갱신 시점에 심어 둔 실제 v0.1 문서를 표시합니다.');
   }
+})();
+
+// ================= 인맥 (CRM) · 운동 · 홈 신호 · 내 생각 =================
+(function () {
+  // ---- 샘플 데이터 (PRD CRM-08 스키마 준수, 화면 검증용) ----
+  const PEOPLE = [
+    { id:'p1', name:'김도현', company:'에스넷', title:'신사업팀장', cohort:'청강자', contact:'010-****-1122',
+      needs:'바이브코딩 내부 강의 소개', offers:'제조업 AX 실행 경험', source:'call_log', firstMet:'7/28', lastContact:'7/28', followup:'pending',
+      timeline:[{dt:'7/28',t:'에스넷 강의에서 명함 교환 · 신사업 AX 고민 상담'}] },
+    { id:'p2', name:'박서진', company:'HL만도', title:'상무', cohort:'CAIO 3기', contact:'010-****-3344',
+      needs:'제조 데이터 파이프라인 자문', offers:'바이브코딩 사내 확산 사례', source:'remember_csv', firstMet:'3/12', lastContact:'6/17', followup:'done',
+      timeline:[{dt:'3/12',t:'CAIO 3기 수료'},{dt:'6/17',t:'사내 AX 워크숍 후 재연락'}] },
+    { id:'p3', name:'이환철', company:'HL만도', title:'상무', cohort:'—', contact:'010-****-2211',
+      needs:'', offers:'', source:'call_log', firstMet:'5/2', lastContact:'2/10', followup:'pending',
+      timeline:[{dt:'5/2',t:'통화 3회 (자동 백업에서 추출)'}] },
+    { id:'p4', name:'정민아', company:'초록소프트', title:'대표', cohort:'—', contact:'010-****-7788',
+      needs:'AX 파트너십 대상 소개', offers:'중소기업 대상 AI 컨설팅 네트워크', source:'manual', firstMet:'7/24', lastContact:'7/24', followup:'pending',
+      timeline:[{dt:'7/24',t:'AX 파트너십 제안 메일 수신'}] },
+    { id:'p5', name:'최유나', company:'UiPath', title:'매니저', cohort:'청강자', contact:'010-****-9900',
+      needs:'CEO 대상 강연 연사 추천', offers:'RPA·에이전트 워크숍 운영', source:'remember_csv', firstMet:'6/1', lastContact:'7/10', followup:'done',
+      timeline:[{dt:'6/1',t:'AI Summit 사전미팅'},{dt:'7/10',t:'8/19 워크숍 협의'}] },
+    { id:'p6', name:'오현식', company:'롯데그룹', title:'책임', cohort:'CAIO 11기', contact:'010-****-5566',
+      needs:'그룹사 AX 파일럿 파트너', offers:'대기업 실행 예산·현업 풀', source:'call_log', firstMet:'6/18', lastContact:'7/8', followup:'pending',
+      timeline:[{dt:'6/18',t:'부여 강의에서 만남'},{dt:'7/8',t:'추천사 작업 협의'}] }
+  ];
+  const INTROS = [
+    { id:'i1', aId:'p1', bId:'p2', reason:'김도현(제조업 AX 실행 경험) ↔ 박서진(제조 데이터 파이프라인 자문 필요)', status:'suggested' },
+    { id:'i2', aId:'p4', bId:'p6', reason:'정민아(AX 파트너십 대상 소개 필요) ↔ 오현식(그룹사 AX 파일럿 파트너 탐색)', status:'suggested' },
+    { id:'i3', aId:'p5', bId:'p1', reason:'최유나(CEO 대상 강연 연사 추천 필요) ↔ 김도현(제조업 AX 강연 가능)', status:'suggested' }
+  ];
+  let IMPORTS = [
+    { id:'m1', kind:'call', name:'이환철 상무', phone:'010-****-2211', note:'HL만도', count:'통화 3회' },
+    { id:'m2', kind:'call', name:'(Unknown)', phone:'010-****-8842', note:'저장 안 됨', count:'통화 1회' },
+    { id:'m3', kind:'call', name:'배달콜 추정', phone:'1600-****', note:'0초 부재중', count:'부재중 2회' },
+    { id:'m4', kind:'card', name:'김도현', phone:'010-****-1122', note:'에스넷 · 리멤버', count:'명함' },
+    { id:'m5', kind:'card', name:'최유나', phone:'010-****-9900', note:'UiPath · 리멤버', count:'명함' },
+    { id:'m6', kind:'call', name:'(Unknown)', phone:'050-****-0001', note:'스팸 추정', count:'통화 1회' }
+  ];
+  const WORKOUTS = [
+    { id:'w1', date:'2026-07-24', type:'러닝', distanceKm:5.2, durationSec:1680 },
+    { id:'w2', date:'2026-07-22', type:'사이클', distanceKm:15.0, durationSec:2520 },
+    { id:'w3', date:'2026-07-21', type:'러닝', distanceKm:4.8, durationSec:1560 },
+    { id:'w4', date:'2026-07-20', type:'러닝', distanceKm:5.0, durationSec:1620 },
+    { id:'w5', date:'2026-07-17', type:'수영', distanceKm:1.2, durationSec:1800 },
+    { id:'w6', date:'2026-07-15', type:'러닝', distanceKm:6.1, durationSec:2010 },
+    { id:'w7', date:'2026-07-12', type:'사이클', distanceKm:22.0, durationSec:3600 }
+  ];
+  const NOW = new Date('2026-07-25T12:00:00+09:00');
+  const $ = s => document.querySelector(s);
+  const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const isRecontact = p => p.followup === 'pending';
+
+  // ---- S-005 연결 추천 dismiss/처리 상태 ----
+  const introState = {}; // id -> suggested|done|dismissed
+  INTROS.forEach(i => introState[i.id] = i.status);
+
+  // ---- 서브내비 ----
+  const subnav = $('#people-subnav');
+  if (subnav) subnav.addEventListener('click', e => {
+    const b = e.target.closest('button[data-view]'); if (!b) return;
+    subnav.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('.pv-view').forEach(v => v.style.display = 'none');
+    $('#pv-' + b.dataset.view).style.display = '';
+  });
+
+  // ---- S-001 목록 ----
+  function renderList() {
+    const q = ($('#ppl-search').value || '').trim().toLowerCase();
+    const f = $('#ppl-filter').value;
+    const box = $('#ppl-list'); box.innerHTML = '';
+    const rows = PEOPLE.filter(p => {
+      const hay = (p.name+' '+p.company+' '+p.needs+' '+p.offers).toLowerCase();
+      if (q && !hay.includes(q)) return false;
+      if (f === 'recontact' && !isRecontact(p)) return false;
+      if (f === 'caio' && !/CAIO/.test(p.cohort)) return false;
+      if (f === 'audience' && p.cohort !== '청강자') return false;
+      return true;
+    });
+    if (!rows.length) { box.innerHTML = '<p class="hint" style="padding:14px 4px;">조건에 맞는 인물이 없습니다.</p>'; return; }
+    rows.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'ppl-row';
+      row.innerHTML = '<span class="nm">'+esc(p.name)+'</span>' +
+        '<span class="meta">'+esc(p.company)+' · '+esc(p.cohort)+' · '+esc(p.lastContact)+' 접촉</span>' +
+        '<span class="flag">'+(isRecontact(p)?'<span class="badge b-warn"><span class="dot"></span>재접촉</span>':'<span class="badge b-good"><span class="dot"></span>완료</span>')+'</span>';
+      row.addEventListener('click', () => openPerson(p.id));
+      box.appendChild(row);
+    });
+  }
+
+  // ---- S-002 상세 · 리마인드 카드 ----
+  function openPerson(id) {
+    const p = PEOPLE.find(x => x.id === id); if (!p) return;
+    const d = $('#ppl-detail'); d.style.display = '';
+    const tl = p.timeline.map(t => '<li><span class="dt">'+esc(t.dt)+'</span>'+esc(t.t)+'</li>').join('');
+    d.innerHTML =
+      '<h2>'+esc(p.name)+' <span class="hint">'+esc(p.company)+(p.title?' '+esc(p.title):'')+' · '+esc(p.cohort)+' · '+esc(p.contact)+'</span></h2>' +
+      '<div class="remind">' +
+        '<div><span class="k">마지막 만남</span>'+esc(p.lastContact)+' · '+esc(p.timeline[p.timeline.length-1].t)+'</div>' +
+        '<div><span class="k">Needs</span>'+(esc(p.needs)||'<span class="hint">미입력</span>')+'</div>' +
+        '<div><span class="k">Offers</span>'+(esc(p.offers)||'<span class="hint">미입력</span>')+'</div>' +
+      '</div>' +
+      '<h3 style="margin-top:8px;">타임라인</h3><ul class="tl" id="tl-'+p.id+'">'+tl+'</ul>' +
+      '<div class="memo-form">' +
+        '<input type="text" id="memo-dt-'+p.id+'" placeholder="날짜 (예: 8/1)" style="max-width:110px;">' +
+        '<input type="text" id="memo-loc-'+p.id+'" placeholder="장소" style="max-width:120px;">' +
+        '<input type="text" id="memo-tx-'+p.id+'" placeholder="한 줄 메모" style="flex:1;min-width:160px;">' +
+        '<button class="memo-add" data-p="'+p.id+'">+ 메모 추가</button>' +
+      '</div>' +
+      '<div style="margin-top:12px;">팔로업 상태: ' +
+        '<button class="memo-add" id="fu-'+p.id+'" data-p="'+p.id+'">'+(p.followup==='pending'?'대기 — 완료 처리':'완료됨 — 되돌리기')+'</button></div>';
+    d.querySelector('.memo-add[data-p="'+p.id+'"]').addEventListener('click', () => addMemo(p.id));
+    d.querySelector('#fu-'+p.id).addEventListener('click', () => { p.followup = p.followup==='pending'?'done':'pending'; openPerson(p.id); renderList(); refreshHome(); });
+  }
+  function addMemo(id) {
+    const p = PEOPLE.find(x => x.id === id); if (!p) return;
+    const dt = $('#memo-dt-'+id).value.trim(), loc = $('#memo-loc-'+id).value.trim(), tx = $('#memo-tx-'+id).value.trim();
+    if (!dt && !tx) return;
+    p.timeline.push({ dt: dt||'날짜미상', t: (loc?loc+' · ':'')+ (tx||'메모') });
+    p.lastContact = dt || p.lastContact;
+    openPerson(id); renderList();
+  }
+
+  // ---- S-005 연결 추천 ----
+  function renderIntros() {
+    const box = $('#intro-list'); box.innerHTML = '';
+    const visible = INTROS.filter(i => introState[i.id] !== 'dismissed');
+    const active = visible.filter(i => introState[i.id] !== 'done');
+    if (!active.length && !visible.some(i => introState[i.id]==='done')) {
+      box.innerHTML = '<p class="hint">현재 추천할 연결이 없습니다 — needs/offers를 더 채우면 추천이 늘어납니다.</p>'; return;
+    }
+    visible.forEach(i => {
+      const done = introState[i.id] === 'done';
+      const c = document.createElement('div');
+      c.className = 'intro-card' + (done ? ' done' : '');
+      c.innerHTML = '<div>'+esc(i.reason)+'</div>' + (done ? '<div class="hint" style="margin-top:6px;">✔ 소개함 — 양쪽 타임라인에 기록됨</div>' :
+        '<div class="intro-btns"><button data-act="done" data-id="'+i.id+'">소개했음</button>' +
+        '<button data-act="hold" data-id="'+i.id+'">보류</button>' +
+        '<button data-act="dismiss" data-id="'+i.id+'">관심없음</button></div>');
+      box.appendChild(c);
+    });
+    box.querySelectorAll('button[data-act]').forEach(b => b.addEventListener('click', () => {
+      const i = INTROS.find(x => x.id === b.dataset.id);
+      if (b.dataset.act === 'done') {
+        introState[i.id] = 'done';
+        [i.aId, i.bId].forEach(pid => { const p = PEOPLE.find(x=>x.id===pid); if (p) p.timeline.push({dt:'오늘', t:'소개됨 — 연결 추천 실행'}); });
+      } else if (b.dataset.act === 'dismiss') introState[i.id] = 'dismissed';
+      else { /* 보류: 순서만 뒤로 */ INTROS.push(INTROS.splice(INTROS.indexOf(i),1)[0]); }
+      renderIntros();
+    }));
+  }
+
+  // ---- S-006 일괄 업로드 결과 ----
+  function renderImports() {
+    const q = ($('#imp-search').value || '').trim().toLowerCase();
+    const box = $('#imp-list'); box.innerHTML = '';
+    const rows = IMPORTS.filter(m => !q || (m.name+' '+m.phone).toLowerCase().includes(q));
+    box.insertAdjacentHTML('beforeend', '<p class="hint" style="padding:6px 4px;">전체 '+IMPORTS.length+'건 · 표시 '+rows.length+'건 (자동 필터 없음)</p>');
+    rows.forEach(m => {
+      const r = document.createElement('div');
+      r.className = 'imp-row';
+      r.innerHTML = '<input type="checkbox" data-id="'+m.id+'">' +
+        '<span class="badge '+(m.kind==='card'?'b-info':'b-done')+'">'+(m.kind==='card'?'명함':'통화')+'</span>' +
+        '<span>'+esc(m.name)+' · '+esc(m.phone)+'</span>' +
+        '<span class="meta">'+esc(m.note)+' · '+esc(m.count)+'</span>';
+      box.appendChild(r);
+    });
+  }
+
+  // ---- 운동 ----
+  function daysBetween(a,b){ return Math.round((a-b)/86400000); }
+  function renderWorkout() {
+    const parsed = WORKOUTS.map(w => ({...w, d:new Date(w.date+'T12:00:00+09:00')}));
+    const weekAgo = new Date(NOW); weekAgo.setDate(NOW.getDate()-7);
+    const monStart = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+    const week = parsed.filter(w => w.d >= weekAgo);
+    const month = parsed.filter(w => w.d >= monStart);
+    $('#wk-week').textContent = week.length;
+    $('#wk-month').textContent = month.length;
+    $('#wk-dist').textContent = week.reduce((s,w)=>s+w.distanceKm,0).toFixed(1);
+    // 연속일수
+    let streak = 0; const dset = new Set(parsed.map(w=>w.date)); let cur = new Date(NOW);
+    for(;;){ const ds = cur.toISOString().slice(0,10); if (dset.has(ds)) { streak++; cur.setDate(cur.getDate()-1); } else if (streak===0 && daysBetween(NOW,cur)===0){ cur.setDate(cur.getDate()-1);} else break; }
+    $('#wk-streak').textContent = streak;
+    $('#wk-recent').innerHTML = parsed.slice().sort((a,b)=>b.d-a.d).slice(0,5).map(w =>
+      '<li><span class="time">'+w.date.slice(5).replace('-','/')+'</span><span>'+esc(w.type)+' '+w.distanceKm+'km · '+Math.round(w.durationSec/60)+'분</span></li>').join('');
+    renderWkTable();
+  }
+  function renderWkTable() {
+    const period = $('#wk-period').value;
+    const weekAgo = new Date(NOW); weekAgo.setDate(NOW.getDate()-7);
+    const monStart = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+    const rows = WORKOUTS.map(w=>({...w,d:new Date(w.date+'T12:00:00+09:00')}))
+      .filter(w => period==='all' || (period==='month'?w.d>=monStart:w.d>=weekAgo))
+      .sort((a,b)=>b.d-a.d);
+    let html = '<tr><th>날짜</th><th>종류</th><th>거리</th><th>시간</th><th>페이스</th></tr>';
+    rows.forEach(w => { const pace = w.distanceKm>0 ? (w.durationSec/60/w.distanceKm).toFixed(1)+'분/km' : '—';
+      html += '<tr><td>'+w.date.slice(5).replace('-','/')+'</td><td>'+esc(w.type)+'</td><td class="num">'+w.distanceKm+'km</td><td class="num">'+Math.round(w.durationSec/60)+'분</td><td class="num">'+pace+'</td></tr>'; });
+    $('#wk-table').innerHTML = html;
+  }
+
+  // ---- 홈 신호 ----
+  function refreshHome() {
+    const rc = PEOPLE.filter(isRecontact).length;
+    const el = $('#home-recontact'); if (el) el.textContent = rc + '명';
+    const weekAgo = new Date(NOW); weekAgo.setDate(NOW.getDate()-7);
+    const wk = WORKOUTS.filter(w => new Date(w.date+'T12:00:00+09:00') >= weekAgo).length;
+    const we = $('#home-workout'); if (we) we.textContent = wk + '회';
+  }
+  document.querySelectorAll('[data-goto]').forEach(c => c.addEventListener('click', () => {
+    const btn = document.querySelector('nav.tabs button[data-tab="'+c.dataset.goto+'"]'); if (btn) btn.click();
+  }));
+
+  // ---- 내 생각 (localStorage) ----
+  document.querySelectorAll('#news-collect .pipe-card[data-news]').forEach(card => {
+    const id = card.dataset.news, key = 'thought:' + id;
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'news-thought'; inp.placeholder = '내 생각 한 줄 (초안에 반영됨)';
+    inp.value = localStorage.getItem(key) || '';
+    inp.addEventListener('input', () => localStorage.setItem(key, inp.value));
+    card.appendChild(inp);
+  });
+
+  // ---- 이벤트 바인딩 + 초기 렌더 ----
+  $('#ppl-search').addEventListener('input', renderList);
+  $('#ppl-filter').addEventListener('change', renderList);
+  $('#imp-search').addEventListener('input', renderImports);
+  $('#imp-delete').addEventListener('click', () => {
+    const ids = [...document.querySelectorAll('#imp-list input:checked')].map(c=>c.dataset.id);
+    IMPORTS = IMPORTS.filter(m => !ids.includes(m.id)); renderImports();
+  });
+  $('#wk-period').addEventListener('change', renderWkTable);
+  renderList(); renderIntros(); renderImports(); renderWorkout(); refreshHome();
 })();
 </script>
 </body>
