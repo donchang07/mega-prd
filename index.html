@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>장동인 교수 · AI Native Cockpit</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #f5f5f7;
+  --page: #ffffff;
+  --ink-1: #1d1d1f;
+  --ink-2: #515154;
+  --ink-muted: #86868b;
+  --grid: #e5e5ea;
+  --baseline: #d2d2d7;
+  --border: rgba(0,0,0,0.04);
+  --series-1: #0071e3;
+  --seq-250: #a7c7f2;
+  --seq-450: #0071e3;
+  --wash: rgba(0,113,227,0.08);
+  --delta-good: #0071e3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Arial, sans-serif;
+  background: var(--page);
+  color: var(--ink-1);
+  line-height: 1.55;
+  padding: 0 0 64px;
+  -webkit-font-smoothing: antialiased;
+}
+header.app { background: #000000; padding: 26px 0 0; }
+.app-title-row {
+  max-width: 1080px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.022em; color: #ffffff; }
+h1 .sub { font-size: 13px; font-weight: 400; color: #86868b; margin-left: 10px; letter-spacing: 0; }
+.meta-right { font-size: 12px; color: #86868b; display: flex; align-items: center; gap: 10px; }
+nav.tabs {
+  max-width: 1080px; margin: 18px auto 0; padding: 0 24px;
+  display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+}
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs button {
+  appearance: none; border: none; background: none; cursor: pointer;
+  font: inherit; font-size: 13.5px; color: #86868b; letter-spacing: -0.01em;
+  padding: 10px 14px 12px; border-bottom: 2px solid transparent; white-space: nowrap;
+  transition: color .15s ease;
+}
+nav.tabs button:hover { color: #ffffff; }
+nav.tabs button.active { color: #ffffff; font-weight: 600; border-bottom-color: var(--series-1); }
+main { max-width: 1080px; margin: 0 auto; padding: 28px 24px 0; }
+section.tab-panel { display: none; }
+section.tab-panel.active { display: block; }
+.card {
+  background: var(--surface-1); border: none; border-radius: 18px;
+  padding: 20px 24px; margin-bottom: 18px;
+}
+.card h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; color: var(--ink-1); margin-bottom: 12px; }
+.card h2 .hint { font-size: 12px; font-weight: 400; color: var(--ink-muted); margin-left: 8px; letter-spacing: 0; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 720px) { .grid-2, .grid-4 { grid-template-columns: 1fr; } .grid-4 { grid-template-columns: 1fr 1fr; } }
+.stat-tile { background: var(--surface-1); border: none; border-radius: 18px; padding: 18px 20px; }
+.stat-tile .label { font-size: 12px; color: var(--ink-muted); }
+.stat-tile .value { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; margin-top: 2px; color: var(--series-1); }
+.stat-tile .note { font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+.stat-tile .note.good { color: var(--series-1); }
+ul.plain { list-style: none; }
+ul.plain li { padding: 9px 2px; border-bottom: 1px solid var(--grid); font-size: 13.5px; display: flex; gap: 10px; align-items: baseline; }
+ul.plain li:last-child { border-bottom: none; }
+.time { color: var(--ink-muted); font-size: 12px; font-variant-numeric: tabular-nums; min-width: 74px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11.5px; font-weight: 600; border-radius: 999px; padding: 2px 10px;
+  border: none; color: var(--ink-1); background: #e8e8ed;
+  white-space: nowrap;
+}
+.badge .dot { display: none; }
+.b-info, .b-done { color: var(--ink-2); }
+.b-good { color: var(--series-1); }
+.pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+@media (max-width: 860px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+.pipe-col { background: #ffffff; border: none; border-radius: 14px; padding: 12px; min-height: 90px; }
+.pipe-col h3 { font-size: 12px; color: var(--ink-muted); font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.pipe-col h3 .cnt { color: var(--ink-muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+.pipe-card {
+  background: var(--surface-1); border: none; border-radius: 10px;
+  padding: 9px 11px; margin-bottom: 8px; font-size: 12.5px; cursor: pointer;
+  transition: background .15s ease;
+}
+.pipe-card:hover { background: var(--wash); }
+.pipe-card .t { font-weight: 600; letter-spacing: -0.01em; }
+.pipe-card .d { color: var(--ink-muted); font-size: 11.5px; margin-top: 2px; }
+.detail-panel {
+  border-top: 1px solid var(--grid); margin-top: 14px; padding-top: 14px;
+  font-size: 13px; color: var(--ink-2); display: none;
+}
+.detail-panel.open { display: block; }
+.detail-panel strong { color: var(--ink-1); }
+table.simple { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.simple th { text-align: left; font-size: 12px; color: var(--ink-muted); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--baseline); }
+table.simple td { padding: 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+table.simple tr:last-child td { border-bottom: none; }
+table.simple td.num { font-variant-numeric: tabular-nums; }
+table.simple a { color: var(--series-1); text-decoration: none; }
+table.simple a:hover { text-decoration: underline; }
+.bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-top: 8px; }
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.bar { width: 100%; max-width: 42px; background: var(--seq-450); border-radius: 4px 4px 0 0; position: relative; }
+.bar.dim { background: var(--seq-250); }
+.bar-wrap .v { font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.bar-wrap .l { font-size: 11px; color: var(--ink-muted); }
+.baseline-row { border-top: 1px solid var(--baseline); margin-top: 0; }
+.prd-layout { display: grid; grid-template-columns: 240px 1fr; gap: 18px; }
+@media (max-width: 720px) { .prd-layout { grid-template-columns: 1fr; } }
+.prd-list button {
+  display: block; width: 100%; text-align: left; font: inherit; font-size: 13px;
+  background: none; border: none; border-radius: 10px;
+  padding: 9px 12px; cursor: pointer; color: var(--ink-2);
+}
+.prd-list button:hover { background: #e8e8ed; }
+.prd-list button.sel { background: #ffffff; color: var(--ink-1); font-weight: 600; }
+.prd-view { font-size: 13.5px; min-height: 200px; background: #ffffff; border-radius: 14px; padding: 18px 22px; }
+.prd-view h1, .prd-view h2, .prd-view h3 { margin: 14px 0 6px; line-height: 1.3; letter-spacing: -0.015em; color: var(--ink-1); }
+.prd-view h1 { font-size: 19px; } .prd-view h2 { font-size: 15px; } .prd-view h3 { font-size: 13.5px; }
+.prd-view p { margin: 6px 0; color: var(--ink-2); }
+.prd-view li { margin: 3px 0 3px 18px; color: var(--ink-2); }
+.prd-view code { background: var(--surface-1); border: none; border-radius: 4px; padding: 0 4px; font-size: 12px; }
+.src-note { font-size: 12px; color: var(--ink-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.notice {
+  background: var(--surface-1); border: none; border-radius: 14px; padding: 12px 18px;
+  font-size: 12.5px; color: var(--ink-2); margin-bottom: 18px;
+}
+.notice strong { color: var(--ink-1); }
+.footer-note { max-width: 1080px; margin: 28px auto 0; padding: 0 24px; font-size: 12px; color: var(--ink-muted); }
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { font-size: 12px; border: none; border-radius: 999px; padding: 3px 12px; color: var(--ink-2); background: var(--surface-1); cursor: pointer; }
+.chip.sel { background: #e8e8ed; color: var(--ink-1); font-weight: 600; }
+.flowmap { font-size: 12.5px; color: var(--ink-2); line-height: 2; }
+.flowmap b { color: var(--ink-1); }
+.arrow { color: var(--series-1); padding: 0 4px; }
+</style>
+</head>
+<body>
+<style>
+.refresh-btn {
+  display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: -0.01em;
+  color: #ffffff; background: var(--series-1); border-radius: 980px;
+  padding: 5px 13px; text-decoration: none; white-space: nowrap;
+  transition: opacity .15s ease;
+}
+.refresh-btn:hover { opacity: .85; }
+#auth-gate {
+  position: fixed; inset: 0; z-index: 9999; background: #000000;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+#auth-gate[hidden] { display: none; }
+#auth-gate .card {
+  width: 100%; max-width: 360px; background: #1d1d1f; border-radius: 18px;
+  padding: 36px 28px; color: #f5f5f7;
+}
+#auth-gate h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.022em; margin-bottom: 4px; }
+#auth-gate .sub { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+#auth-gate label { display: block; font-size: 12px; color: #86868b; margin: 14px 0 5px; }
+#auth-gate input {
+  width: 100%; font: inherit; font-size: 15px; color: #f5f5f7;
+  background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 10px;
+  padding: 11px 12px; outline: none;
+}
+#auth-gate input:focus { border-color: var(--series-1); }
+#auth-gate button {
+  width: 100%; margin-top: 22px; font: inherit; font-size: 15px; font-weight: 600;
+  color: #ffffff; background: var(--series-1); border: none; border-radius: 10px;
+  padding: 12px; cursor: pointer;
+}
+#auth-gate .err { font-size: 12.5px; color: #ff6961; margin-top: 12px; display: none; }
+body.locked > *:not(#auth-gate) { display: none !important; }
+</style>
+<div id="auth-gate" hidden>
+  <div class="card">
+    <h2>AI Native Cockpit</h2>
+    <div class="sub">장동인 교수 전용 상황판입니다. 로그인해 주세요.</div>
+    <label for="ag-id">이메일</label>
+    <input id="ag-id" type="email" autocomplete="username" inputmode="email">
+    <label for="ag-pw">비밀번호</label>
+    <input id="ag-pw" type="password" autocomplete="current-password">
+    <button id="ag-go">열기</button>
+    <div class="err" id="ag-err">이메일 또는 비밀번호가 맞지 않습니다.</div>
+  </div>
+</div>
+<script>
+(function () {
+  var KEY = 'cockpit_auth_v1';
+  var HASH = 'f29837b4ca11d056150b29b3d8459f22af4719f80d679dbbdef0f6f44375f9fe';
+  function show(ok) {
+    var gate = document.getElementById('auth-gate');
+    if (ok) { gate.remove(); document.body.classList.remove('locked'); }
+    else { document.body.classList.add('locked'); gate.hidden = false;
+           setTimeout(function(){ document.getElementById('ag-id').focus(); }, 50); }
+  }
+  async function digest(s) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  }
+  async function attempt() {
+    var id = document.getElementById('ag-id').value.trim().toLowerCase();
+    var pw = document.getElementById('ag-pw').value;
+    if (await digest(id + '|' + pw) === HASH) {
+      try { localStorage.setItem(KEY, HASH); } catch (e) {}
+      show(true);
+    } else {
+      document.getElementById('ag-err').style.display = 'block';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    show(saved === HASH);
+    var gate = document.getElementById('auth-gate');
+    if (gate && gate.isConnected) {
+      document.getElementById('ag-go').addEventListener('click', attempt);
+      document.getElementById('ag-pw').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') attempt();
+      });
+    }
+  });
+  document.body.classList.add('locked');
+})();
+</script>
+<header class="app">
+  <div class="app-title-row">
+    <h1>AI Native Cockpit<span class="sub">장동인 교수 · 통합 업무 상황판</span></h1>
+    <div class="meta-right">
+      <span id="last-updated">마지막 갱신: 2026-07-24 (금) 17시 · Calendar·Gmail·Drive 실데이터</span>
+      <a id="manual-refresh" class="refresh-btn" href="https://claude.ai/new?q=AI%20Native%20Cockpit%EC%9D%84%20%EC%A7%80%EA%B8%88%20%EA%B0%B1%EC%8B%A0%ED%95%B4%EC%A4%98.%20Calendar%C2%B7Gmail%C2%B7Drive%EB%A5%BC%20%EC%8A%A4%EC%BA%94%ED%95%B4%EC%84%9C%20ai-native-cockpit.vercel.app%20%EC%97%90%20%EC%9E%AC%EB%B0%B0%ED%8F%AC%ED%95%B4%EC%A4%98." target="_blank" rel="noopener">🔄 수동 갱신</a>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="ai4ceo">ai4ceo</button>
+    <button data-tab="home" class="active">홈 · 오늘</button>
+    <button data-tab="prd">Mega PRD</button>
+    <button data-tab="schedule">스케줄</button>
+    <button data-tab="news">AI 뉴스 · SNS</button>
+    <button data-tab="writing">책쓰기</button>
+    <button data-tab="lecture">강의 파이프라인</button>
+    <button data-tab="lms">CAIO-LMS</button>
+    <button data-tab="alumni">CAIO-Alumni</button>
+    <button data-tab="system">시스템</button>
+  </nav>
+</header>
+<main>
+<!-- ================= 홈 ================= -->
+<section class="tab-panel active" id="tab-home">
+  <div class="notice">모든 탭이 <strong>실데이터</strong>입니다 — Calendar(일정) · Gmail(정산·입금·모집) · Drive(책) · GitHub(PRD) · 웹 검색(AI 뉴스), 7/24 17시 스캔 기준. 매일 아침 6시 브리핑이 예약되어 있습니다.</div>
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-tile"><div class="label">이번 주 강의</div><div class="value">5회</div><div class="note">창업원 교육 월–금 10–12시</div></div>
+    <div class="stat-tile"><div class="label">다음 외부 강의</div><div class="value">7/28</div><div class="note">에스넷 강의(성일용) · 18:30</div></div>
+    <div class="stat-tile"><div class="label">8월 확정 강의</div><div class="value">5건</div><div class="note">UiPath·매경·AIS·SK플래닛·헥토</div></div>
+    <div class="stat-tile"><div class="label">CAIO 11기</div><div class="value">D-28</div><div class="note">모집 마감 · 8/21 인트로</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>오늘 일정 <span class="hint">7월 24일 (금) · Google Calendar</span></h2>
+      <ul class="plain">
+        <li><span class="time">10:00–12:00</span><span>창업원 교육</span><span class="badge b-info">강의</span></li>
+        <li><span class="time">내일 7/25</span><span>생일 🎂</span><span class="badge b-done">개인</span></li>
+        <li><span class="time">화 7/28</span><span>에스넷 강의(성일용) 18:30–19:30 · 오전 창업원 교육과 같은 날</span><span class="badge b-warn">신규</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>지금 주의가 필요한 일 <span class="hint">Gmail·Calendar 스캔 결과</span></h2>
+      <ul class="plain">
+        <li><span class="badge b-warn">⚠ 회신 필요</span><span>공직아카데미 수료인원 재확정 — 담당자(7/22): 서명 없는 인원은 제외 필요, 증빙 없으면 미반영</span></li>
+        <li><span class="badge b-warn">⚠ 점검</span><span>창업원 교육 모듈2 강사 계약 이슈(7/3~) — 계약서 미체결 상태로 진행 중</span></li>
+        <li><span class="badge b-good">✔ 확정</span><span>서울대 SPARC 49기 강연 — 12/1(화) 1교시 확정, 제목 「돈되는 AI — CEO가 반드시 알아야 하는 것들」 전달 완료(7/24)</span></li>
+        <li><span class="badge b-good">✔ 완료</span><span>CAIO 11기 — HL만도 비용처리 재문의에 회신 완료, 상대측 확인 인사 수신(7/24) — 종결</span></li>
+        <li><span class="badge b-info">신규</span><span>초록소프트 김명락 대표 — AX 파트너십 제안 메일 수신(7/24) · 회신 여부 결정 필요</span></li>
+        <li><span class="badge b-warn">⚠ 오늘 마감</span><span>Alumni 7월호 뉴스레터 초안 마감일(7/24)</span></li>
+        <li><span class="badge b-good">✔ 입금</span><span>LG엔솔 강사료 ₩3,648,000 입금 완료(7/10) · 한빛 인세 7/20 지급 예정 · 리코멘드 상반기 인세 정산 도착</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h2>전체 프로세스 연결 지도 <span class="hint">이 콕핏이 다루는 흐름</span></h2>
+    <div class="flowmap">
+      <b>AI 뉴스 수집</b><span class="arrow">→</span>공부·정리<span class="arrow">→</span><b>SNS 포스팅</b><span class="arrow">→</span>강의 콘텐츠에 반영<br>
+      <b>강의 문의</b><span class="arrow">→</span>일정 확정(스케줄)<span class="arrow">→</span>강의 준비<span class="arrow">→</span>강의<span class="arrow">→</span><b>만난 사람 팔로업</b><span class="arrow">→</span>정산 서류 전달<span class="arrow">→</span><b>입금 확인</b><br>
+      <b>책쓰기</b>(원고 집필)<span class="arrow">→</span>책 챕터<span class="arrow">→</span>강의 PPT 변환<span class="arrow">→</span>강의·CAIO 교재로 활용<br>
+      <b>CAIO-LMS</b>(기수 운영)<span class="arrow">→</span>수료<span class="arrow">→</span><b>CAIO-Alumni</b>(졸업생 네트워크)<span class="arrow">→</span>재강의·추천으로 순환<br>
+      이 모든 운영 경험<span class="arrow">→</span><b>Mega PRD</b>에 축적<span class="arrow">→</span>ai4ceo-portal 제품화
+    </div>
+  </div>
+</section>
+
+<!-- ================= ai4ceo ================= -->
+<section class="tab-panel" id="tab-ai4ceo">
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-tile"><div class="label">프로젝트 단계</div><div class="value">Phase 1</div><div class="note">콕핏 골격 구축 중</div></div>
+    <div class="stat-tile"><div class="label">Mega PRD</div><div class="value">v0.1</div><div class="note">mega-prd 레포 게시 · 7/23</div></div>
+    <div class="stat-tile"><div class="label">열린 백로그</div><div class="value">7건</div><div class="note">이번 주 착수 2건</div></div>
+    <div class="stat-tile"><div class="label">배포 상태</div><div class="value">—</div><div class="note">portal 미배포 · 설계 단계</div></div>
+  </div>
+  <div class="card">
+    <h2>ai4ceo — AI Native Company 프로젝트 <span class="hint">github.com/donchang07/ai4ceo-portal</span></h2>
+    <div class="flowmap">
+      <b>목표</b>: CEO·임원이 AI에게 업무를 위임하는 회사, 그 운영 모델을 제품(portal)으로 만든다.<br>
+      <b>전략</b>: 교수님 자신의 업무 전체(강의·콘텐츠·CAIO·정산)를 먼저 AI Native로 전환 <span class="arrow">→</span> 그 운영 경험을 Mega PRD로 문서화 <span class="arrow">→</span> ai4ceo-portal 제품으로 승격.<br>
+      이 콕핏의 나머지 탭 전부가 이 프로젝트의 <b>살아있는 실험장</b>입니다.
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>로드맵 <span class="hint">Mega PRD v1.0 기준</span></h2>
+      <ul class="plain">
+        <li><span class="badge b-good"><span class="dot"></span>✔ 진행</span><span>Phase 1 — 통합 콕핏 골격 (이 화면)</span></li>
+        <li><span class="badge b-info"><span class="dot"></span>다음</span><span>Phase 2 — Calendar·Gmail·GitHub 실데이터 + 아침 자동 갱신</span></li>
+        <li><span class="badge b-info"><span class="dot"></span>대기</span><span>Phase 3 — CAIO LMS/Alumni 데이터 스키마 확정</span></li>
+        <li><span class="badge b-info"><span class="dot"></span>대기</span><span>Phase 4 — ai4ceo-portal 웹 제품으로 승격 (배포)</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>백로그 <span class="hint">목업 · repo 이슈로 관리 예정</span></h2>
+      <ul class="plain">
+        <li><span class="badge b-good"><span class="dot"></span>✔ 완료</span><span>mega-prd 레포 개설 · v0.1 게시 (7/23)</span></li>
+        <li><span class="badge b-warn"><span class="dot"></span>⚠ 이번주</span><span>강의 파이프라인 데이터 스키마 초안 (data/lectures.json)</span></li>
+        <li><span class="badge b-info"><span class="dot"></span>대기</span><span>아침 갱신 예약 작업 설계</span></li>
+        <li><span class="badge b-info"><span class="dot"></span>대기</span><span>팔로업 메일 템플릿 3종</span></li>
+        <li><span class="badge b-info"><span class="dot"></span>대기</span><span>정산 지연 자동 알림 규칙 (발송 후 14일)</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Mega PRD ================= -->
+<section class="tab-panel" id="tab-prd">
+  <div class="card">
+    <h2>Mega PRD 뷰어 <span class="hint">github.com/donchang07/mega-prd · docs/prd</span></h2>
+    <div class="src-note" id="prd-src-note"><span class="badge b-warn"><span class="dot"></span>⚠ 목업</span><span>GitHub 실시간 연결을 시도하는 중입니다…</span></div>
+    <div class="prd-layout">
+      <div class="prd-list" id="prd-list"></div>
+      <div class="prd-view" id="prd-view"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 스케줄 ================= -->
+<section class="tab-panel" id="tab-schedule">
+  <div class="card">
+    <h2>이번 주 <span class="hint">7/20 – 7/26 · Google Calendar 실데이터</span></h2>
+    <table class="simple">
+      <tr><th style="width:110px;">요일</th><th>일정</th><th style="width:120px;">분류</th></tr>
+      <tr><td>월 7/20</td><td>창업원 교육 10:00–12:00 · 바이오컴 11:00</td><td><span class="badge b-done">완료</span></td></tr>
+      <tr><td>화 7/21</td><td>창업원 교육 10:00–12:00</td><td><span class="badge b-done">완료</span></td></tr>
+      <tr><td>수 7/22</td><td>창업원 교육 10:00–12:00</td><td><span class="badge b-done">완료</span></td></tr>
+      <tr><td>목 7/23</td><td>창업원 교육 10:00–12:00</td><td><span class="badge b-done">완료</span></td></tr>
+      <tr><td>금 7/24</td><td>창업원 교육 10:00–12:00</td><td><span class="badge b-info">오늘</span></td></tr>
+      <tr><td>토 7/25</td><td>생일 🎂</td><td><span class="badge b-done">개인</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>다가오는 강의·행사 <span class="hint">확정 기준 · Calendar</span></h2>
+    <table class="simple">
+      <tr><th style="width:110px;">날짜</th><th>일정</th><th style="width:140px;">비고</th></tr>
+      <tr><td class="num">~7/31</td><td>창업원 교육 (평일 10:00–12:00 시리즈)</td><td>진행 중</td></tr>
+      <tr><td class="num">7/28 (화)</td><td>에스넷 강의(성일용)</td><td class="num">18:30</td></tr>
+      <tr><td class="num">8/19 (수)</td><td>UiPath Workshop · 광화문빌딩</td><td class="num">14:00–18:00</td></tr>
+      <tr><td class="num">8/19–21</td><td>AI Summit Seoul</td><td>기간 행사</td></tr>
+      <tr><td class="num">8/20 (목)</td><td>매경 빅데이터 · 솔라고 호텔</td><td class="num">18:00</td></tr>
+      <tr><td class="num">8/21 (금)</td><td>AIS 세미나 (청년을 위한) · CAIO 11기 인트로 18:00</td><td class="num">10:00</td></tr>
+      <tr><td class="num">8/24 (월)</td><td>SK플래닛 판교 사옥</td><td class="num">10:00</td></tr>
+      <tr><td class="num">8/25 (화)</td><td>헥토 · 큰길타워 3층</td><td class="num">17:30</td></tr>
+      <tr><td class="num">9/9 (수)</td><td>AI4CEO 18기 시작 (수 18:00–21:00 · 9/9·16·23·30)</td><td>기수 시작</td></tr>
+      <tr><td class="num">12/1 (화)</td><td>서울대 SPARC 49기 「돈되는 AI — CEO가 반드시 알아야 하는 것들」</td><td class="num">1교시</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================= AI 뉴스 · SNS ================= -->
+<section class="tab-panel" id="tab-news">
+  <div class="notice">수집 뉴스는 <strong>웹 검색 실데이터</strong>(7/23)입니다. 매일 아침 6시 브리핑이 새 뉴스 3~5건과 포스팅 초안 1건을 배달합니다. LinkedIn은 직접 연동이 없어 발행 기록은 교수님 확인으로 채웁니다.</div>
+  <div class="card">
+    <h2>콘텐츠 파이프라인 <span class="hint">수집 → 정리 → 초안 → 발행</span></h2>
+    <div class="pipeline" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="pipe-col"><h3>수집 <span class="cnt">5</span></h3>
+        <div class="pipe-card"><div class="t">OpenAI 테스트 에이전트, HF 인프라 자율 해킹</div><div class="d">7/23 · 자율 시스템 보안 리스크 사례</div></div>
+        <div class="pipe-card"><div class="t">AWS Bedrock AgentCore GA</div><div class="d">7/21 · 오케스트레이션·메모리 표준화</div></div>
+        <div class="pipe-card"><div class="t">Ushur 에이전틱 플랫폼 UAP 출시</div><div class="d">7/23 · 보험·은행·헬스케어</div></div>
+        <div class="pipe-card"><div class="t">에이전트 소비 결제 $3.35조 전망 (2030)</div><div class="d">7/21 · x402 결제 표준</div></div>
+        <div class="pipe-card"><div class="t">SutiSoft — 챗봇→워크플로 실행 에이전트</div><div class="d">7/22 · 엔터프라이즈 전환</div></div>
+      </div>
+      <div class="pipe-col"><h3>정리·공부 <span class="cnt">2</span></h3>
+        <div class="pipe-card"><div class="t">에이전트 보안 사건 → 책 8부 사례</div><div class="d">'검증의 과학' 실사례 후보</div></div>
+        <div class="pipe-card"><div class="t">AgentCore GA → 3·7부 자료 갱신</div><div class="d">Harness·EVCP 툴 비교표 업데이트</div></div>
+      </div>
+      <div class="pipe-col"><h3>초안 <span class="cnt">1</span></h3>
+        <div class="pipe-card"><div class="t">"AI 에이전트가 스스로 해킹했다"</div><div class="d">CEO 관점 LinkedIn 초안 — "초안 만들어줘"로 생성</div></div>
+      </div>
+      <div class="pipe-col"><h3>발행 <span class="cnt">0</span></h3>
+        <div class="pipe-card"><div class="t">(기록 없음)</div><div class="d">발행하시면 말씀해 주세요 — 기록해 둡니다</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>운영 방식</h2>
+    <div class="flowmap">아침 6시 브리핑이 <b>수집</b> 칸을 채우고<span class="arrow">→</span>교수님이 고른 건만 <b>정리·초안</b>으로<span class="arrow">→</span>발행은 교수님이 LinkedIn에서<span class="arrow">→</span>정리된 지식은 책 원고와 강의 자료로 흘러갑니다.</div>
+  </div>
+</section>
+
+<!-- ================= 책쓰기 ================= -->
+<section class="tab-panel" id="tab-writing">
+  <div class="notice">이 탭은 <strong>Google Drive 실데이터</strong>입니다 (2026-07-23 스캔 · 글쓰기 › CEO를 위한 AI Navtive Enterprise).</div>
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-tile"><div class="label">최신 버전</div><div class="value">v14</div><div class="note">사실검증 수정본 · 7/5</div></div>
+    <div class="stat-tile"><div class="label">구성</div><div class="value">9부</div><div class="note">+프롤로그·에필로그·부록 · 약 257쪽</div></div>
+    <div class="stat-tile"><div class="label">버전 이력</div><div class="value">7개</div><div class="note">v1.0 → v14 · 7주간</div></div>
+    <div class="stat-tile"><div class="label">마지막 수정</div><div class="value">18일 전</div><div class="note">⚠ 퇴고 재개 시점 확인</div></div>
+  </div>
+  <div class="card">
+    <h2>《CEO와 경영진을 위한 AI Native — 기업의 AX를 위한 바이브 코딩》 <span class="hint">현업 바이브 코딩과 생산성의 폭발</span></h2>
+    <div class="flowmap">
+      <b>핵심 메시지</b>: 진짜 질문은 "AI를 어디에 도입할까"가 아니라 <b>"누가 만드는가"</b> — 답은 IT 부서가 아니라 현업 자신이다.<br>
+      <b>두 개의 축</b>: ① 현업 중심 바이브 코딩(가능성·실행) ② 거버넌스·검증·플랫폼(준비) — 둘 중 하나라도 빠지면 AX는 실패한다.
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>버전 이력 <span class="hint">클릭하면 Drive에서 열립니다</span></h2>
+      <table class="simple">
+        <tr><th>버전</th><th style="width:90px;">수정일</th><th style="width:110px;">비고</th></tr>
+        <tr><td><a href="https://docs.google.com/document/d/1lfs9o0y5vexrd7dPq-nlAY8PxZBrjYusopkIi2L8mAY/edit" target="_blank" style="color:var(--series-1);">v14 사실검증 수정본</a></td><td class="num">7/5</td><td><span class="badge b-good"><span class="dot"></span>✔ 최신</span></td></tr>
+        <tr><td><a href="https://docs.google.com/document/d/13uwKgfvuVT_pMZK7fraxsWmAbn5J16AmN2xczFwwkRY/edit" target="_blank" style="color:var(--series-1);">v13</a></td><td class="num">6/14</td><td>Google Doc</td></tr>
+        <tr><td><a href="https://drive.google.com/file/d/1xL4OlCjVwN2d4rPkSvwFeOtsGCebIUko/view" target="_blank" style="color:var(--series-1);">v10</a></td><td class="num">6/5</td><td>docx</td></tr>
+        <tr><td><a href="https://drive.google.com/file/d/12oyJU4V0LRtFzkJfGF3g_19dI_PK1usG/view" target="_blank" style="color:var(--series-1);">v9</a></td><td class="num">5/29</td><td>docx</td></tr>
+        <tr><td><a href="https://drive.google.com/file/d/1X8VlQcoxMr5QO040l_4h8Llg1T0uyB_g/view" target="_blank" style="color:var(--series-1);">v7</a></td><td class="num">5/25</td><td>docx</td></tr>
+        <tr><td><a href="https://drive.google.com/file/d/1B6xIVPFlh0j2I5ZGPerC2TJMu3h5spj8/view" target="_blank" style="color:var(--series-1);">v2</a></td><td class="num">5/21</td><td>docx</td></tr>
+        <tr><td><a href="https://drive.google.com/file/d/1E0ISJlwEOAkZ8je5Qc618t84WIr-npo1/view" target="_blank" style="color:var(--series-1);">v1.0</a></td><td class="num">5/17</td><td>docx</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>전체 구성 <span class="hint">v14 목차 기준</span></h2>
+      <ul class="plain">
+        <li><span class="time">프롤로그</span><span>AX 시대, CEO의 결단</span></li>
+        <li><span class="time">1부</span><span>왜 바이브 코딩이 AX의 핵심 키인가</span></li>
+        <li><span class="time">2부</span><span>바이브 코딩이 만드는 새로운 가치 (자동화→예측→시뮬레이션→최적화)</span></li>
+        <li><span class="time">3부</span><span>Harness Engineering — 엔지니어링 문화의 코드화</span></li>
+        <li><span class="time">4부</span><span>AI Native 기업으로의 도약</span></li>
+        <li><span class="time">5부</span><span>도메인 지식 오케스트레이션 (Plugin·Skill·MCP)</span></li>
+        <li><span class="time">6부</span><span>부서별 SOP의 근본적 재설계 (Vibe Marketing~IT)</span></li>
+        <li><span class="time">7부</span><span>Chaos를 막는 거버넌스 — EVCP 7 컴포넌트</span></li>
+        <li><span class="time">8부</span><span>검증의 과학 — 정확성을 어떻게 유지할 것인가</span></li>
+        <li><span class="time">9부</span><span>AI Native 기업의 성공 사례 — 4가지 폭발</span></li>
+        <li><span class="time">에필로그</span><span>한국 기업의 글로벌 표준 주도 기회 + 부록 A·B·D</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h2>다음 단계 제안 <span class="hint">Claude 제안 · 확정은 교수님</span></h2>
+    <ul class="plain">
+      <li><span class="badge b-warn"><span class="dot"></span>⚠ 확인</span><span>v14 이후 18일 경과 — 퇴고 재개 또는 출판사 전달 여부 결정</span></li>
+      <li><span class="badge b-info"><span class="dot"></span>정리</span><span>v14 파일이 폴더 밖(내 드라이브 최상위)에 있음 — 책 폴더로 이동 권장</span></li>
+      <li><span class="badge b-info"><span class="dot"></span>연계</span><span>책 챕터 → 강의 PPT 변환 (브랜드 스킬) · CAIO 교재로 활용</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 강의 파이프라인 ================= -->
+<section class="tab-panel" id="tab-lecture">
+  <div class="notice">일정은 <strong>Calendar</strong>, 정산·입금 상태는 <strong>Gmail 스캔(최근 60일 · 7/24)</strong> 실데이터입니다. "미확인" = 관련 메일이 발견되지 않은 건입니다.</div>
+  <div class="card">
+    <h2>강의 수명주기 보드 <span class="hint">카드를 누르면 상세</span></h2>
+    <div class="pipeline" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="pipe-col"><h3>확정·예정 <span class="cnt">7</span></h3>
+        <div class="pipe-card" data-detail="lec-1"><div class="t">에스넷 강의 (성일용)</div><div class="d">7/28 (화) 18:30–19:30 · 신규</div></div>
+        <div class="pipe-card" data-detail="lec-2"><div class="t">UiPath Workshop</div><div class="d">8/19 (수) 14–18시 · 광화문</div></div>
+        <div class="pipe-card" data-detail="lec-3"><div class="t">매경 빅데이터</div><div class="d">8/20 (목) 18:00 · 솔라고 호텔</div></div>
+        <div class="pipe-card" data-detail="lec-4"><div class="t">AIS 세미나 (청년)</div><div class="d">8/21 (금) 10:00</div></div>
+        <div class="pipe-card" data-detail="lec-5"><div class="t">SK플래닛</div><div class="d">8/24 (월) 10:00 · 판교</div></div>
+        <div class="pipe-card" data-detail="lec-6"><div class="t">헥토</div><div class="d">8/25 (화) 17:30 · 큰길타워</div></div>
+        <div class="pipe-card" data-detail="lec-16"><div class="t">서울대 SPARC 49기</div><div class="d">12/1 (화) 1교시 · 7/24 확정</div></div>
+      </div>
+      <div class="pipe-col"><h3>진행 중 <span class="cnt">1</span></h3>
+        <div class="pipe-card" data-detail="lec-7"><div class="t">창업원 교육</div><div class="d">7/6–7/31 평일 · ⚠ 모듈2 계약 이슈</div></div>
+      </div>
+      <div class="pipe-col"><h3>7월 완료 <span class="cnt">3</span></h3>
+        <div class="pipe-card" data-detail="lec-8"><div class="t">대구강의</div><div class="d">7/15 · 정산 미확인</div></div>
+        <div class="pipe-card" data-detail="lec-9"><div class="t">매경AX클럽 세미나</div><div class="d">7/7 · 정산 미확인</div></div>
+        <div class="pipe-card" data-detail="lec-10"><div class="t">공직아카데미 (상반기)</div><div class="d">7/1–3 · 청구 발송 7/22 · ⚠ 인원 이슈</div></div>
+      </div>
+      <div class="pipe-col"><h3>6월 완료 <span class="cnt">5</span></h3>
+        <div class="pipe-card" data-detail="lec-11"><div class="t">당진상공회의소</div><div class="d">6/24 조찬</div></div>
+        <div class="pipe-card" data-detail="lec-12"><div class="t">광주경찰청</div><div class="d">6/23</div></div>
+        <div class="pipe-card" data-detail="lec-13"><div class="t">롯데그룹 (부여)</div><div class="d">6/18</div></div>
+        <div class="pipe-card" data-detail="lec-14"><div class="t">LG엔솔</div><div class="d">6/17 · ✔ 입금 완료 7/10</div></div>
+        <div class="pipe-card" data-detail="lec-15"><div class="t">YBM the Biz</div><div class="d">6/12 종일 · 강남</div></div>
+      </div>
+    </div>
+    <div class="detail-panel" id="lecture-detail"><span style="color:var(--ink-muted);">카드를 선택하면 상세 정보가 여기에 표시됩니다.</span></div>
+  </div>
+  <div class="card">
+    <h2>정산 체크리스트 <span class="hint">Gmail 스캔 실데이터 · 7/24</span></h2>
+    <table class="simple">
+      <tr><th>강의</th><th style="width:80px;">일자</th><th style="width:230px;">정산·입금</th><th style="width:170px;">다음 행동</th></tr>
+      <tr><td>LG엔솔</td><td class="num">6/17</td><td><span class="badge b-good">✔ 입금 완료</span> 7/10 · ₩3,648,000</td><td>없음</td></tr>
+      <tr><td>공직아카데미 (상반기)</td><td class="num">7/1–3</td><td>결과보고·교육비 청구 발송(7/22) · 지급 7월말~8월초 예상</td><td><span class="badge b-warn">⚠ 수료인원 회신</span></td></tr>
+      <tr><td>대구강의</td><td class="num">7/15</td><td><span class="badge b-warn">⚠ 미확인</span> 관련 메일 없음</td><td>정산 조건 확인</td></tr>
+      <tr><td>매경AX클럽 세미나</td><td class="num">7/7</td><td><span class="badge b-warn">⚠ 미확인</span> 관련 메일 없음</td><td>정산 조건 확인</td></tr>
+      <tr><td>당진상공회의소 · 광주경찰청 · 롯데 · YBM</td><td class="num">6월</td><td><span class="badge b-warn">⚠ 미확인</span> 관련 메일 없음</td><td>입금 여부 알려주시면 기록</td></tr>
+    </table>
+    <div style="font-size:12px;color:var(--ink-muted);margin-top:8px;">참고: 인세 — 한빛앤 상반기 인세 7/20 지급 예정 · 리코멘드 상반기 인세 정산 내역 도착(7/20). "대구 입금 확인됐어" 한마디면 갱신합니다.</div>
+  </div>
+  </div>
+</section>
+
+<!-- ================= CAIO-LMS ================= -->
+<section class="tab-panel" id="tab-lms">
+  <div class="notice">기수 일정(Calendar)과 모집·등록 현황(Gmail)은 <strong>실데이터</strong>입니다. LMS 내부 데이터(수강생 명단·과제) 연결 방식은 미정입니다.</div>
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-tile"><div class="label">CAIO 10기</div><div class="value">수료</div><div class="note">6월 · 리더 포럼 6/25</div></div>
+    <div class="stat-tile"><div class="label">CAIO 11기</div><div class="value">마감</div><div class="note">예비 순번까지 마감 · 인트로 8/21 (D-28)</div></div>
+    <div class="stat-tile"><div class="label">AI4CEO 17기</div><div class="value">수료</div><div class="note">6/3 저녁 모임 완료</div></div>
+    <div class="stat-tile"><div class="label">AI4CEO 18기</div><div class="value">9/9</div><div class="note">수 18–21시 · 9/9·16·23·30</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h2>기수 캘린더 <span class="hint">확정 일정</span></h2>
+      <ul class="plain">
+        <li><span class="time">8/21 (금)</span><span>CAIO 11기 인트로 18:00</span><span class="badge b-info">D-28</span></li>
+        <li><span class="time">8/27 (목)</span><span>CAIO 11기 1주차</span><span class="badge b-info">예정</span></li>
+        <li><span class="time">9/3·10·17</span><span>CAIO 11기 2–4주차 (매주 목)</span><span class="badge b-info">예정</span></li>
+        <li><span class="time">9/9 (수)</span><span>AI4CEO 18기 1주차 18:00–21:00</span><span class="badge b-info">예정</span></li>
+        <li><span class="time">9/16·23·30</span><span>AI4CEO 18기 2–4주차 (매주 수)</span><span class="badge b-info">예정</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>준비 체크리스트 <span class="hint">Claude 제안 · 확정은 교수님</span></h2>
+      <ul class="plain">
+        <li><span class="badge b-good">✔ 완료</span><span>CAIO 11기 모집 마감 — 예비 순번까지 선착순 마감 (포스코·LG전자·하나은행·두산로보틱스 등 지원)</span></li>
+        <li><span class="badge b-good"><span class="dot"></span>✔ 완료</span><span>HL만도 비용처리 건 — 7/24 재문의에 회신 완료, 상대측 확인 인사 수신 · 종결</span></li>
+        <li><span class="badge b-info">제안</span><span>11기 인트로 자료 — 책 v14 챕터 → PPT 변환 활용</span></li>
+        <li><span class="badge b-info">제안</span><span>AI4CEO 18기 커리큘럼 확정 (9/9 시작)</span></li>
+        <li><span class="badge b-info">제안</span><span>10기 수료생 → Alumni 온보딩</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CAIO-Alumni ================= -->
+<section class="tab-panel" id="tab-alumni">
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="stat-tile"><div class="label">누적 졸업생</div><div class="value">121명</div><div class="note">1–4기</div></div>
+    <div class="stat-tile"><div class="label">다음 모임</div><div class="value">8/21</div><div class="note">하계 네트워킹 · 강남</div></div>
+    <div class="stat-tile"><div class="label">뉴스레터</div><div class="value">7월호</div><div class="note">⚠ 초안 마감 오늘 (7/24)</div></div>
+    <div class="stat-tile"><div class="label">재강의·추천 유입</div><div class="value">4건</div><div class="note good">올해 누적 · 전환 2건</div></div>
+  </div>
+  <div class="card">
+    <h2>Alumni 활동 현황</h2>
+    <table class="simple">
+      <tr><th>기수</th><th class="num">인원</th><th>대표 활동</th><th style="width:130px;">상태</th></tr>
+      <tr><td>1기</td><td class="num">28</td><td>자체 스터디 운영 중</td><td><span class="badge b-good"><span class="dot"></span>✔ 활발</span></td></tr>
+      <tr><td>2기</td><td class="num">30</td><td>8월 모임 주관 기수</td><td><span class="badge b-good"><span class="dot"></span>✔ 활발</span></td></tr>
+      <tr><td>3기</td><td class="num">31</td><td>단톡방 중심</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 재활성 필요</span></td></tr>
+      <tr><td>4기</td><td class="num">32</td><td>수료 직후 · 온보딩 중</td><td><span class="badge b-info"><span class="dot"></span>온보딩</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================= 시스템 ================= -->
+<section class="tab-panel" id="tab-system">
+  <div class="card">
+    <h2>데이터 소스 연결 상태 <span class="hint">목표 아키텍처</span></h2>
+    <table class="simple">
+      <tr><th>소스</th><th>담당 데이터</th><th style="width:140px;">상태</th></tr>
+      <tr><td>GitHub · mega-prd / ai4ceo-portal</td><td>Mega PRD (docs/prd) · data/*.json</td><td><span class="badge b-warn" id="sys-github"><span class="dot"></span>⚠ 확인 중</span></td></tr>
+      <tr><td>Google Calendar</td><td>스케줄 · 강의 일정</td><td><span class="badge b-good"><span class="dot"></span>✔ 연결됨</span></td></tr>
+      <tr><td>Gmail</td><td>팔로업 메일 · 정산 서류 · 입금 알림</td><td><span class="badge b-good"><span class="dot"></span>✔ 연결됨</span></td></tr>
+      <tr><td>Sooji (지식 라이브러리)</td><td>AI 뉴스 · 공부 노트</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 미연결</span></td></tr>
+      <tr><td>CAIO-LMS</td><td>수강생 · 과제 · 출석</td><td><span class="badge b-warn"><span class="dot"></span>⚠ 방식 미정</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>갱신 방식</h2>
+    <div class="flowmap">
+      이 화면은 <b>뷰(view)</b>이고, 실행 엔진은 <b>Claude + 예약 작업</b>입니다.<br>
+      ① 매일 아침 예약 작업이 각 소스를 스캔 <span class="arrow">→</span> ② 상태를 판단(지연·임박·완료) <span class="arrow">→</span> ③ 이 아티팩트를 갱신<br>
+      메일 발송·일정 등록 같은 <b>실행</b>은 버튼이 아니라 Claude에게 지시 <span class="arrow">→</span> 처리 후 화면에 반영
+    </div>
+  </div>
+</section>
+</main>
+<div class="footer-note" id="footer-note">
+  v0.9 (2026-07-24 17시 갱신) · 이 상황판은 라이브 아티팩트입니다. 데이터 갱신·실행(메일 발송, 일정 등록 등)은 Claude에게 지시하면 처리 후 이 화면을 업데이트합니다.
+</div>
+<script>
+// ---------- 탭 ----------
+const tabsNav = document.getElementById('tabs');
+tabsNav.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-tab]');
+  if (!btn) return;
+  tabsNav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + btn.dataset.tab));
+});
+
+// ---------- 강의 카드 상세 ----------
+const LEC_DETAILS = {
+  'lec-1': '<strong>에스넷 강의 (성일용)</strong> · 7/28 (화) 18:30–19:30 · 7/23 밤 등록된 신규 일정 · 같은 날 오전 창업원 교육(10:00–12:00) 있음',
+  'lec-2': '<strong>UiPath Workshop</strong> · 8/19 (수) 14:00–18:00 · 세종대로 149 광화문빌딩 · 같은 주 AI Summit Seoul (8/19–21)',
+  'lec-3': '<strong>매경 빅데이터</strong> · 8/20 (목) 18:00 · 솔라고 호텔',
+  'lec-4': '<strong>AIS 세미나 (청년을 위한)</strong> · 8/21 (금) 10:00 · 같은 날 저녁 CAIO 11기 인트로',
+  'lec-5': '<strong>SK플래닛</strong> · 8/24 (월) 10:00 · 판교 사옥',
+  'lec-6': '<strong>헥토</strong> · 8/25 (화) 17:30 · 큰길타워 3층 · 8/19 헥토 일정과 연결 확인 필요',
+  'lec-7': '<strong>창업원 교육</strong> · 7/6–7/31 평일 10:00–12:00 · 남은 회차: 7/27–31 · ⚠ 모듈2(AI 심화) 강사 계약 미체결 이슈(7/3~) — 창업지원센터와 조율 중, 8월 모듈2 일정 리스크',
+  'lec-8': '<strong>대구강의</strong> · 7/15 (수) 14:00 완료 · 팔로업·정산 상태 미입력',
+  'lec-9': '<strong>매경AX클럽 온라인 세미나</strong> · 7/7 (화) 15:00–17:00 완료 · 정산 상태 미입력',
+  'lec-10': '<strong>공직아카데미 (상반기)</strong> · 7/1–3 (세종컨벤션센터+Zoom) 완료 · 7/22 교육결과+교육비 청구 발송 · ⚠ 수료인원 40명 중 서명 미비 인원 제외 요청받음 — 명단 재확정 회신 필요 · 지급 7월말~8월초 예상',
+  'lec-11': '<strong>당진상공회의소</strong> · 6/24 조찬 완료',
+  'lec-12': '<strong>광주경찰청</strong> · 6/23 10:00 완료',
+  'lec-13': '<strong>롯데그룹</strong> · 6/18 11:00 부여 완료 · 7/8 오현식-롯데 추천사 작업과 연결',
+  'lec-14': '<strong>LG엔솔</strong> · 6/17 완료 · ✔ 강사료 ₩3,648,000 입금 완료 (7/10 · 농협)',
+  'lec-15': '<strong>YBM the Biz</strong> · 6/12 10:00–17:00 · 강남교육연수센터 완료'
+  'lec-16': '<strong>서울대 SPARC 49기</strong> · 12/1 (화) 1교시 · 7/24 메일로 일정 확정, 강연 제목 「돈되는 AI — CEO가 반드시 알아야 하는 것들」 전달 완료 · 담당: 자연대 기획대외협력실',
+};
+const lecPanel = document.getElementById('lecture-detail');
+document.getElementById('tab-lecture').addEventListener('click', (e) => {
+  const card = e.target.closest('.pipe-card[data-detail]');
+  if (!card) return;
+  lecPanel.innerHTML = LEC_DETAILS[card.dataset.detail] || '';
+  lecPanel.classList.add('open');
+});
+
+// ---------- Mega PRD 뷰어 ----------
+const PRD_MOCK = [
+  { name: "mega-prd-v0.1.md", body: "# Mega PRD v0.1 — AI Native Company 통합 업무 시스템\n\n| 항목 | 내용 |\n| --- | --- |\n| 문서 버전 | v0.1 |\n| 작성일 | 2026-07-23 |\n| 제품 책임자 | 장동인 교수 (AIBB LAB 대표, KAIST 김재철AI대학원 책임교수) |\n| 목적 | 장동인 교수의 전체 업무를 AI Native 방식으로 통합 운영하는 시스템의 최상위 설계 문서 |\n| 상태 | 초안 — 콕핏 v0.5 목업과 함께 검증 중 |\n\n## 1. 비전\n\n사람은 결정하고, AI는 실행한다. 강의·집필·콘텐츠·과정 운영·정산에 이르는 전체 업무를\n하나의 콕핏에서 보고, Claude 엔진이 데이터 수집·상태 판단·실행을 담당하는\n**개인 단위 AI Native Company**를 구축한다.\n\n이 시스템 자체가 저서 《CEO와 경영진을 위한 AI Native — 기업의 AX를 위한 바이브 코딩》과\nAI4CEO 스쿨이 가르치는 방법론의 살아있는 증거물(living proof)이 된다.\n\n## 2. 범위 — 10개 프로세스\n\n| # | 프로세스 | 설명 | 데이터 원천 |\n| --- | --- | --- | --- |\n| 1 | ai4ceo | AI4CEO Portal 제품 개발 (하위 PRD 별도) | github.com/donchang07/ai4ceo-portal |\n| 2 | 스케줄 관리 | 일정·강의 일정 통합 | Google Calendar |\n| 3 | AI 뉴스·공부·정리·SNS 포스팅 | 수집→정리→초안→발행 파이프라인 | 뉴스 소스, LinkedIn 등 |\n| 4 | 책쓰기 | 원고 집필·버전 관리·책→강의 변환 | Google Drive (글쓰기 폴더) |\n| 5 | 강의 준비 | 문의→확정→자료 준비 | Calendar, Gmail, data/lectures.json |\n| 6 | 강의 후 팔로업 | 만난 사람 관리, 48시간 내 첫 메일 | Gmail, data/followups.json |\n| 7 | 강사료 정산 서류 전달 | 서류 발송 추적 | Gmail, data/lectures.json |\n| 8 | 강사료 입금 확인 | 입금 대기·지연 알림 (발송 후 14일 규칙) | Gmail, data/lectures.json |\n| 9 | CAIO-LMS | 기수 운영 (수강생·과제·출석) | 방식 확정 필요 |\n| 10 | CAIO-Alumni | 졸업생 네트워크·뉴스레터·재강의 유입 | 방식 확정 필요 |\n\n프로세스 간 연결:\n- AI 뉴스 → 공부·정리 → SNS 포스팅 → 강의 콘텐츠에 반영\n- 강의 문의 → 일정 확정 → 준비 → 강의 → 팔로업 → 정산 서류 → 입금 확인\n- 책쓰기 → 책 챕터 → 강의 PPT 변환 → 강의·CAIO 교재로 활용\n- CAIO-LMS → 수료 → CAIO-Alumni → 재강의·추천으로 순환\n- 모든 운영 경험 → 이 Mega PRD에 축적 → ai4ceo-portal 제품화\n\n## 3. 아키텍처 — 3층 구조\n\n1. **데이터층 (진실의 원천)**\n   - GitHub: 이 레포(mega-prd)의 docs/prd + data/*.json, ai4ceo-portal\n   - Google Calendar: 일정\n   - Gmail: 팔로업·정산·입금 알림\n   - Google Drive: 책 원고 (글쓰기 › CEO를 위한 AI Navtive Enterprise)\n2. **엔진층 (Claude + 예약 작업)**\n   - 매일 아침 예약 작업이 각 소스를 스캔 → 상태 판단(지연·임박·완료) → 콕핏 갱신\n   - 실행(메일 발송, 일정 등록, 커밋)은 사용자의 지시 후 Claude가 수행\n3. **뷰층 (라이브 아티팩트 콕핏)**\n   - 탭: ai4ceo / 홈·오늘 / Mega PRD / 스케줄 / AI 뉴스·SNS / 책쓰기 / 강의 파이프라인 / CAIO-LMS / CAIO-Alumni / 시스템\n   - 원칙: 콕핏은 뷰(view)다. 버튼이 실행하는 것이 아니라 Claude가 실행하고 화면에 반영한다.\n\n## 4. 데이터 설계 원칙\n\n- 상태 데이터(강의 파이프라인, 팔로업, 정산)는 이 레포의 `data/*.json`을 단일 원천으로 한다.\n  버전 관리가 되고, Claude가 읽고 쓸 수 있으며, 콕핏이 직접 읽을 수 있다.\n- 원본 문서(책 원고, PRD)는 원래 위치(Drive, GitHub)에 두고 참조만 한다. 복사본을 만들지 않는다.\n- 개인정보(팔로업 연락처 등)는 public 레포에 두지 않는다. 이름 이니셜·회사만 기록하고\n  상세는 비공개 저장소 또는 로컬에 둔다. (레포 공개 여부 결정에 따라 조정)\n\n## 5. 현재 상태 (2026-07-23 기준 — 사실)\n\n- 콕핏 v0.5: 10개 탭 목업 완성, 애플 디자인 시스템 적용. 책쓰기 탭은 Drive 실데이터 연결 완료.\n- 책: v14 사실검증 수정본 (2026-07-05 수정, 약 257쪽, 9부 구성). 18일간 수정 없음.\n- ai4ceo-portal: PRD v3.2 확정 (2026-07-21), 모노레포 구조 (docs/01-plan~04-report 체계).\n- 미연결: Google Calendar, Gmail, CAIO-LMS/Alumni 데이터.\n\n## 6. 로드맵\n\n| Phase | 내용 | 상태 |\n| --- | --- | --- |\n| 1 | 통합 콕핏 골격 (목업) | 완료 (v0.5) |\n| 2 | 실데이터 연결 — Drive(완료), Calendar, Gmail, GitHub + 아침 자동 갱신 예약 작업 | 진행 중 |\n| 3 | 강의 파이프라인·CAIO 데이터 스키마 확정, data/*.json 운영 개시 | 대기 |\n| 4 | 운영 경험의 제품화 — ai4ceo-portal에 반영 | 대기 |\n\n## 7. 성공 지표 (안)\n\n- 팔로업 착수: 강의 후 48시간 이내 100%\n- 정산 누락: 0건 (발송 후 14일 초과 시 자동 경고)\n- 주간 SNS 발행: 2건 이상\n- 콕핏 갱신: 매일 아침 자동, 수동 개입 없이\n- 책·강의 변환: 챕터 → PPT 변환 소요 시간 1일 이내\n\n## 8. 하위 PRD\n\n- AI4CEO Portal PRD v3.2 (최종본): `ai4ceo-portal/docs/prd/prd-v3.2.md`\n- AI4CEO Portal PRD v3.0: `ai4ceo-portal/docs/prd/prd-v3.0.md`\n\n## 9. 미결 사항\n\n- [ ] 이 레포의 공개 여부 (public이면 콕핏이 GitHub API로 직접 읽기 가능, 대신 개인정보 규칙 4장 적용)\n- [ ] CAIO-LMS 데이터 접근 방식\n- [ ] 강사료 데이터의 민감도 처리 (금액을 레포에 둘지, 로컬에 둘지)\n- [ ] 책 v14 이후 퇴고 재개 일정\n" }
+];
+const prdList = document.getElementById('prd-list');
+const prdView = document.getElementById('prd-view');
+const prdNote = document.getElementById('prd-src-note');
+let prdDocs = [];
+let prdLive = false;
+
+function mdToHtml(md) {
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const lines = md.split(/\r?\n/);
+  let html = '', inList = false, inTable = false, tableRow = 0;
+  for (const raw of lines) {
+    const line = raw;
+    const flush = () => {
+      if (inList) { html += '</ul>'; inList = false; }
+      if (inTable) { html += '</table>'; inTable = false; tableRow = 0; }
+    };
+    if (/^\s*\|/.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      const cells = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim());
+      if (cells.every(c => /^:?-{2,}:?$/.test(c))) continue;
+      if (!inTable) { html += '<table class="simple" style="margin:8px 0;">'; inTable = true; tableRow = 0; }
+      const tag = tableRow === 0 ? 'th' : 'td';
+      html += '<tr>' + cells.map(c => '<' + tag + '>' + inline(c) + '</' + tag + '>').join('') + '</tr>';
+      tableRow++;
+      continue;
+    }
+    if (inTable) { html += '</table>'; inTable = false; tableRow = 0; }
+    if (/^###\s/.test(line)) { flush(); html += '<h3>' + inline(line.slice(4)) + '</h3>'; }
+    else if (/^##\s/.test(line)) { flush(); html += '<h2>' + inline(line.slice(3)) + '</h2>'; }
+    else if (/^#\s/.test(line)) { flush(); html += '<h1>' + inline(line.slice(2)) + '</h1>'; }
+    else if (/^\s*[-*]\s/.test(line)) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + inline(line.replace(/^\s*[-*]\s/, '')) + '</li>'; }
+    else if (/^\s*\d+\.\s/.test(line)) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + inline(line.replace(/^\s*\d+\.\s/, '')) + '</li>'; }
+    else if (line.trim() === '') { flush(); }
+    else { flush(); html += '<p>' + inline(line) + '</p>'; }
+  }
+  if (inList) html += '</ul>';
+  if (inTable) html += '</table>';
+  return html;
+  function inline(s) {
+    return esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+}
+
+function renderPrdList(sel) {
+  prdList.innerHTML = '';
+  prdDocs.forEach((d, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = d.name;
+    if (i === sel) b.classList.add('sel');
+    b.addEventListener('click', () => openPrd(i));
+    prdList.appendChild(b);
+  });
+}
+
+async function openPrd(i) {
+  renderPrdList(i);
+  const d = prdDocs[i];
+  if (d.body != null) { prdView.innerHTML = mdToHtml(d.body); return; }
+  prdView.innerHTML = '<p style="color:var(--ink-muted);">불러오는 중…</p>';
+  try {
+    const r = await fetch(d.url, { headers: { 'Accept': 'application/vnd.github.raw+json' } });
+    if (!r.ok) throw new Error(r.status);
+    d.body = await r.text();
+  } catch (err) {
+    d.body = '# 불러오기 실패\n\n이 환경에서 GitHub에 직접 접근할 수 없습니다. Claude가 갱신 시점에 내용을 심어 넣는 방식으로 전환합니다.';
+  }
+  prdView.innerHTML = mdToHtml(d.body);
+}
+
+function useMock(msg) {
+  prdDocs = PRD_MOCK.slice();
+  prdLive = false;
+  prdNote.innerHTML = '<span class="badge b-warn"><span class="dot"></span>⚠ 내장본</span><span>' + msg + '</span>';
+  openPrd(prdDocs.length - 1);
+}
+
+(async function initPrd() {
+  try {
+    const r = await fetch('https://api.github.com/repos/donchang07/mega-prd/contents/docs/prd', { headers: { 'Accept': 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const items = await r.json();
+    const files = (Array.isArray(items) ? items : []).filter(f => f.type === 'file' && /\.(md|txt)$/i.test(f.name));
+    if (!files.length) throw new Error('no files');
+    prdDocs = files.map(f => ({ name: f.name, url: f.download_url || f.url, body: null }));
+    prdLive = true;
+    prdNote.innerHTML = '<span class="badge b-good"><span class="dot"></span>✔ 실시간</span><span>GitHub에서 직접 불러왔습니다 · 문서 ' + files.length + '건</span>';
+    const sys = document.getElementById('sys-github');
+    if (sys) { sys.className = 'badge b-good'; sys.innerHTML = '<span class="dot"></span>✔ 연결됨 (읽기)';
+    }
+    openPrd(prdDocs.length - 1);
+  } catch (e) {
+    useMock('GitHub 실시간 연결 실패 (' + (e && e.message ? e.message : '차단됨') + ') — 갱신 시점에 심어 둔 실제 v0.1 문서를 표시합니다.');
+  }
+})();
+</script>
+</body>
+</html>
